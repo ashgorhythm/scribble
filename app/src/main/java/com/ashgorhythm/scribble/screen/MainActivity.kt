@@ -5,12 +5,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.ashgorhythm.scribble.ui.theme.ScribbleTheme
+import com.ashgorhythm.scribble.viewmodel.NoteViewModel
 
 class MainActivity : ComponentActivity() {
+    private val viewModel: NoteViewModel by viewModels()
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,7 +21,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ScribbleTheme() {
                 Scaffold(modifier = Modifier.Companion.fillMaxSize()) {
-
+                    HomeScreen(viewModel)
                 }
             }
         }
