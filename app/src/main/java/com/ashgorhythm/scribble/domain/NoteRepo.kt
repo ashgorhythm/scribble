@@ -18,7 +18,7 @@ class NoteRepo(private val noteDao: NoteDao) {
     suspend fun deleteNote(note: Note){
         return noteDao.deleteNote(note)
     }
-    fun searchNote(query: String): Flow<List<Note>>{
-        return noteDao.searchNotes(query)
-    }
+//    fun searchNote(query: String): Flow<List<Note>>{
+//        return noteDao.searchNotes(query)
+//    }
 }

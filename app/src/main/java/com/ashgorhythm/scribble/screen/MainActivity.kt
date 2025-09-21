@@ -9,11 +9,19 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import com.ashgorhythm.scribble.domain.MainApplication
+import com.ashgorhythm.scribble.domain.NoteRepo
 import com.ashgorhythm.scribble.ui.theme.ScribbleTheme
 import com.ashgorhythm.scribble.viewmodel.NoteViewModel
+import com.ashgorhythm.scribble.viewmodel.NoteViewModelFactory
 
 class MainActivity : ComponentActivity() {
-    private val viewModel: NoteViewModel by viewModels()
+    private val noteViewModel: NoteViewModel by viewModels {
+        NoteViewModelFactory(
+            NoteRepo(MainApplication.noteDatabase.getNoteDao())
+        )
+    }
+
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,7 +29,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ScribbleTheme() {
                 Scaffold(modifier = Modifier.Companion.fillMaxSize()) {
-                    HomeScreen(viewModel)
+                    HomeScreen(noteViewModel)
                 }
             }
         }

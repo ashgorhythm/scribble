@@ -19,6 +19,6 @@ interface NoteDao {
     @Query("SELECT * FROM notes ORDER BY updatedAt DESC")
     fun getAllNotes(): Flow<List<Note>>
     // Search notes by title or content
-    @Query("SELECT * FROM notes WHERE title LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%' ORDER BY updatedAt DESC")
-    fun searchNotes(query: String): Flow<List<Note>>
+//    @Query("SELECT * FROM notes WHERE title LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%' ORDER BY updatedAt DESC")
+//    fun searchNotes(query: String): Flow<List<Note>>
 }
