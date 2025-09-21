@@ -1,4 +1,4 @@
-package com.ashgorhythm.scribble
+package com.ashgorhythm.scribble.domain
 
 import android.app.Application
 import androidx.room.Room

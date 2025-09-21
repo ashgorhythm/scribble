@@ -5,18 +5,16 @@ import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 @Dao
 interface NoteDao {
     //upsert note(insert + update)
     @Upsert
     suspend fun upsertNote(note: Note)
-    //delete all note
+    //delete a note
     @Delete
-    suspend fun deleteAllNote(note: Note)
-    //Delete one note
-    @Query("SELECT * FROM notes WHERE id = :id")
-    fun deleteNote(id: Long): Flow<List<Note>>
+    suspend fun deleteNote(note: Note)
     //get note
     @Query("SELECT * FROM notes ORDER BY updatedAt DESC")
     fun getAllNotes(): Flow<List<Note>>
