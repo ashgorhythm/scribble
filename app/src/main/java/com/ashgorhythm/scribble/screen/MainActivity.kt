@@ -9,8 +9,10 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.navigation.compose.rememberNavController
 import com.ashgorhythm.scribble.domain.MainApplication
 import com.ashgorhythm.scribble.domain.NoteRepo
+import com.ashgorhythm.scribble.navigation.ScribbleNavGraph
 import com.ashgorhythm.scribble.ui.theme.ScribbleTheme
 import com.ashgorhythm.scribble.viewmodel.NoteViewModel
 import com.ashgorhythm.scribble.viewmodel.NoteViewModelFactory
@@ -28,8 +30,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ScribbleTheme {
+                val navController = rememberNavController()
                 Scaffold(modifier = Modifier.Companion.fillMaxSize()) {
-                    HomeScreen(noteViewModel)
+                    ScribbleNavGraph(
+                        navController = navController,
+                        noteViewModel = noteViewModel
+                    )
                 }
             }
         }

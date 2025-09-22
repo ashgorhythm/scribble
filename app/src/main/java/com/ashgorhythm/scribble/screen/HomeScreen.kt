@@ -30,7 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.ashgorhythm.scribble.data.Note
+import com.ashgorhythm.scribble.navigation.Screen
 import com.ashgorhythm.scribble.viewmodel.NoteViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -39,7 +41,10 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(viewModel: NoteViewModel){
+fun HomeScreen(
+    viewModel: NoteViewModel,
+    navController: NavHostController
+){
     val notes by viewModel.notes.collectAsState()
 
 
@@ -62,7 +67,7 @@ fun HomeScreen(viewModel: NoteViewModel){
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-
+                  navController.navigate(Screen.Note.route)
                 },
                 containerColor = MaterialTheme.colorScheme.primary,
                 elevation = FloatingActionButtonDefaults.elevation(2.dp),
