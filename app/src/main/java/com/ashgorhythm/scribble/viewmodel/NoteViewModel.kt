@@ -20,7 +20,7 @@ class NoteViewModel(
 
     fun loadNotes(){
         viewModelScope.launch {
-            noteRepo.getAllNote().collect(){list ->
+            noteRepo.getAllNote().collect { list ->
                 _notes.value = list
             }
         }

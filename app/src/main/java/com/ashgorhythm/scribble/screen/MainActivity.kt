@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ScribbleTheme() {
+            ScribbleTheme {
                 Scaffold(modifier = Modifier.Companion.fillMaxSize()) {
                     HomeScreen(noteViewModel)
                 }
