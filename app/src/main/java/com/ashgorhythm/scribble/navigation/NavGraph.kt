@@ -25,7 +25,7 @@ fun ScribbleNavGraph(
             HomeScreen(noteViewModel,navController)
         }
         composable(Screen.Note.route){
-            NoteScreen(navController)
+            NoteScreen(navController,noteViewModel)
         }
     }
 }
