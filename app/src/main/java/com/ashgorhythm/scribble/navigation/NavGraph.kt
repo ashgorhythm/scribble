@@ -3,8 +3,10 @@ package com.ashgorhythm.scribble.navigation
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.ashgorhythm.scribble.domain.MainApplication
 import com.ashgorhythm.scribble.domain.NoteRepo
 import com.ashgorhythm.scribble.screen.HomeScreen
@@ -22,10 +24,21 @@ fun ScribbleNavGraph(
         startDestination = Screen.Home.route
     ){
         composable(Screen.Home.route){
-            HomeScreen(noteViewModel,navController)
+            HomeScreen(
+                noteViewModel,
+                navController,
+               onNoteClick = {noteId ->
+                   navController.navigate(Screen.Note.createRoute(noteId))
+               }
+            )
         }
-        composable(Screen.Note.route){
-            NoteScreen(navController,noteViewModel)
+        composable(
+            Screen.Note.route,
+            listOf(navArgument("noteId"){
+                type = NavType.LongType
+            })){ backStackEntry ->
+            val noteId = backStackEntry.arguments?.getLong("noteId") ?: return@composable
+            NoteScreen(navController,noteViewModel,noteId)
         }
     }
 }

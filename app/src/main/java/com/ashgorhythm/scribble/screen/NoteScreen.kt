@@ -11,9 +11,11 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +29,7 @@ import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +47,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ashgorhythm.scribble.data.Note
 import com.ashgorhythm.scribble.viewmodel.NoteViewModel
+import java.util.Date
 
 
 @SuppressLint("UnrememberedMutableState")
@@ -52,10 +56,32 @@ import com.ashgorhythm.scribble.viewmodel.NoteViewModel
 fun NoteScreen(
     navController: NavHostController,
     viewModel: NoteViewModel,
-    existingNote: Note? = null
+    noteId: Long
 ){
-    var title by remember { mutableStateOf(existingNote?.title) }
-    var description by remember { mutableStateOf(existingNote?.description) }
+    var title by remember { mutableStateOf("") }
+    var description by remember { mutableStateOf("") }
+    var existingNote by remember { mutableStateOf<Note?>(null) }
+    val note = viewModel.note.collectAsState().value
+
+    val isNewNote = noteId == -1L
+
+    LaunchedEffect(noteId) {
+        if (!isNewNote){
+            viewModel.getById(noteId)
+        }
+
+    }
+    LaunchedEffect(note) {
+        note?.let {
+            existingNote = it
+            title = it.title
+            description = it.description
+        }
+        navController.popBackStack()
+
+    }
+
+
 
     Dialog(
         onDismissRequest = {},
@@ -74,8 +100,8 @@ fun NoteScreen(
             ) {
                 CenterAlignedTopAppBar(
                     title = {
-                        if (existingNote?.title?.isNotBlank() == true){
-                            Text("${existingNote.title}")
+                        if (existingNote != null && existingNote!!.title != null){
+                            Text("${existingNote!!.title}")
                         }
                         else{
                             Text("New Note")
@@ -97,7 +123,7 @@ fun NoteScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(70.dp),
-                        value = title?: "",
+                        value = title,
                         onValueChange = { title = it },
                         placeholder = {Text("Title")},
                         colors = TextFieldDefaults.colors(
@@ -114,7 +140,7 @@ fun NoteScreen(
                 TextField(
                         modifier = Modifier
                             .fillMaxSize(),
-                        value = description?: "",
+                        value = description,
                         onValueChange = { description = it},
                         placeholder = {Text("Description")},
                         colors = TextFieldDefaults.colors(
@@ -122,13 +148,27 @@ fun NoteScreen(
                             focusedContainerColor = Color.Transparent
                         )
                     )
-
+                FloatingActionButton(
+                    onClick = {
+                        val newNote = existingNote?.copy(
+                            title = title,
+                            description = description,
+                            updatedAt = System.currentTimeMillis()
+                        )
+                            ?: Note(
+                                title = title,
+                                description = description,
+                                createdAt = System.currentTimeMillis(),
+                                updatedAt = System.currentTimeMillis()
+                            )
+                        viewModel.upsertNote(newNote)
+                        navController.popBackStack()
+                    },
+                    containerColor = MaterialTheme.colorScheme.secondary
+                ) {
+                    Icon(Icons.Filled.Check,"Save")
+                }
             }
         }
     }
-}
-fun saveNote(
-    note: Note
-){
-
 }

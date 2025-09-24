@@ -43,7 +43,8 @@ import java.util.Locale
 @Composable
 fun HomeScreen(
     viewModel: NoteViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    onNoteClick: (Long) -> Unit
 ){
     val notes by viewModel.notes.collectAsState()
 
@@ -83,7 +84,9 @@ fun HomeScreen(
         ) {
             items(notes){note ->
                NoteCard(
-                   note = note
+                   note = note,
+                   navController = navController,
+                   onClick = {onNoteClick(note.id)}
                )
             }
         }
@@ -94,10 +97,11 @@ fun HomeScreen(
 
 @Composable
 fun NoteCard(
-    note: Note
+    note: Note,
+    navController: NavHostController,
+    onClick: () -> Unit
 ){
     Card(
-        onClick = {},
         modifier = Modifier.padding(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background
