@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.ashgorhythm.scribble.data.Note
 import com.ashgorhythm.scribble.navigation.Screen
@@ -37,6 +38,8 @@ import com.ashgorhythm.scribble.viewmodel.NoteViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.Long
+import kotlin.Unit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -46,7 +49,7 @@ fun HomeScreen(
     navController: NavHostController,
     onNoteClick: (Long) -> Unit
 ){
-    val notes by viewModel.notes.collectAsState()
+    val notes by viewModel.notes.collectAsStateWithLifecycle()
 
 
     Scaffold(
@@ -68,7 +71,8 @@ fun HomeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                  navController.navigate(Screen.Note.route)
+                    viewModel.clearNote()
+                  navController.navigate(Screen.Note.createRoute(-1L))
                 },
                 containerColor = MaterialTheme.colorScheme.primary,
                 elevation = FloatingActionButtonDefaults.elevation(2.dp),
@@ -85,8 +89,7 @@ fun HomeScreen(
             items(notes){note ->
                NoteCard(
                    note = note,
-                   navController = navController,
-                   onClick = {onNoteClick(note.id)}
+                  onNoteClick = onNoteClick
                )
             }
         }
@@ -98,10 +101,10 @@ fun HomeScreen(
 @Composable
 fun NoteCard(
     note: Note,
-    navController: NavHostController,
-    onClick: () -> Unit
+    onNoteClick: (Long) -> Unit
 ){
     Card(
+        onClick = {onNoteClick(note.id)},
         modifier = Modifier.padding(8.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background

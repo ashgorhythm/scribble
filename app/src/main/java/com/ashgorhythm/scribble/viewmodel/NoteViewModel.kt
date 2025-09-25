@@ -45,6 +45,9 @@ class NoteViewModel(
            }
         }
     }
+    fun clearNote(){
+        _note.value = null
+    }
 //    fun searchNote(query: String){
 //        viewModelScope.launch {
 //            noteRepo.searchNote(query).collect {result ->

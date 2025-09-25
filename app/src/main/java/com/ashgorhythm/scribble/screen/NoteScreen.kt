@@ -41,6 +41,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -69,6 +70,14 @@ fun NoteScreen(
         if (!isNewNote){
             viewModel.getById(noteId)
         }
+        else{
+            viewModel.clearNote()
+            existingNote = null
+            title = ""
+            description = ""
+
+        }
+
 
     }
     LaunchedEffect(note) {
@@ -77,14 +86,13 @@ fun NoteScreen(
             title = it.title
             description = it.description
         }
-        navController.popBackStack()
 
     }
 
 
 
     Dialog(
-        onDismissRequest = {},
+        onDismissRequest = {navController.popBackStack()},
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
             decorFitsSystemWindows = false
@@ -100,7 +108,7 @@ fun NoteScreen(
             ) {
                 CenterAlignedTopAppBar(
                     title = {
-                        if (existingNote != null && existingNote!!.title != null){
+                        if (existingNote != null){
                             Text("${existingNote!!.title}")
                         }
                         else{
