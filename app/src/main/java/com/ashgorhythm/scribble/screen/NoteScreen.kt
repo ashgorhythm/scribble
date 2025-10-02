@@ -2,6 +2,7 @@ package com.ashgorhythm.scribble.screen
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -27,6 +30,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
@@ -38,9 +42,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,6 +56,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.ashgorhythm.scribble.R
 import com.ashgorhythm.scribble.data.Note
 import com.ashgorhythm.scribble.viewmodel.NoteViewModel
 import java.util.Date
@@ -68,7 +75,7 @@ fun NoteScreen(
     var existingNote by remember { mutableStateOf<Note?>(null) }
     val note = viewModel.note.collectAsState().value
     val context = LocalContext.current
-
+    var openAlertDialog by remember { mutableStateOf(false) }
     val isNewNote = noteId == -1L
 
     LaunchedEffect(noteId) {
@@ -108,72 +115,88 @@ fun NoteScreen(
                 .fillMaxSize(),
             shadowElevation = 2.dp
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                CenterAlignedTopAppBar(
-                    title = {
-                        if (existingNote != null){
-                            Text("${existingNote!!.title}")
-                        }
-                        else{
-                            Text("New Note")
-                        }
+            Box(modifier = Modifier.fillMaxSize())
+            {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    CenterAlignedTopAppBar(
+                        title = {
+                            if (existingNote != null){
+                                Text(existingNote!!.title)
+                            }
+                            else{
+                                Text("New Note")
+                            }
 
-                    },
-                    navigationIcon = {
-                        IconButton(
-                           onClick = {
-                               navController.popBackStack()
-                           }
-                        ) {
-                            Icon(Icons.Default.Close,"Close")
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = {
-                            viewModel.deleteNote(existingNote!!)
-                            navController.popBackStack()
-                            Toast.makeText(context,"Note deleted successfully", Toast.LENGTH_SHORT).show()
-                        }) {
-                            Icon(Icons.Filled.Delete,"Delete")
-                        }
-                        Spacer(Modifier.padding(vertical = 5.dp))
-                        IconButton(onClick = {}) {
-                            Icon(Icons.Filled.)
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.secondary)
-                )
-                TextField(
+                        },
+                        navigationIcon = {
+                            IconButton(
+                                onClick = {
+                                    navController.popBackStack()
+                                }
+                            ) {
+                                Icon(Icons.Default.Close,"Close")
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = {
+                                viewModel.deleteNote(existingNote!!)
+                                navController.popBackStack()
+                                Toast.makeText(context, "Note deleted successfully", Toast.LENGTH_SHORT)
+                                    .show()
+                            }) {
+                                Icon(Icons.Filled.Delete, "Delete")
+                            }
+                        },
+
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.secondary)
+                    )
+                    TextField(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(70.dp),
                         value = title,
                         onValueChange = { title = it },
-                        placeholder = {Text("Title")},
+                        placeholder = {Text(
+                            text = "Title",
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold)},
+                        textStyle = TextStyle(
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
                         colors = TextFieldDefaults.colors(
                             unfocusedContainerColor = Color.Transparent,
                             focusedContainerColor = Color.Transparent
                         )
                     )
 
-                HorizontalDivider(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    color = Color.LightGray
-                )
-                TextField(
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        color = Color.LightGray
+                    )
+                    TextField(
                         modifier = Modifier
                             .fillMaxSize(),
                         value = description,
                         onValueChange = { description = it},
-                        placeholder = {Text("Description")},
+                        placeholder = {Text(
+                            text = "Description",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold)},
+                        textStyle = TextStyle(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
                         colors = TextFieldDefaults.colors(
                             unfocusedContainerColor = Color.Transparent,
                             focusedContainerColor = Color.Transparent
                         )
                     )
+
+                }
                 FloatingActionButton(
                     onClick = {
                         val newNote = existingNote?.copy(
@@ -187,14 +210,34 @@ fun NoteScreen(
                                 createdAt = System.currentTimeMillis(),
                                 updatedAt = System.currentTimeMillis()
                             )
-                        viewModel.upsertNote(newNote)
-                        navController.popBackStack()
+                        if (title.isBlank() && description.isBlank()){
+                            openAlertDialog = true
+                        }
+                        else{
+                            viewModel.upsertNote(newNote)
+                            navController.popBackStack()
+                        }
+
                     },
-                    containerColor = MaterialTheme.colorScheme.secondary
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 35.dp)
+                        .padding(end = 16.dp),
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.tertiary
                 ) {
-                    Icon(Icons.Filled.Check,"Save")
+                    Icon(painter = painterResource(R.drawable.outlined_save), contentDescription = "Save")
+                }
+                if (openAlertDialog) {
+                    AlertNote(
+                        onDismissRequest = { openAlertDialog = false },
+                        dialogTitle = "Empty Note!",
+                        dialogText = "Title or Description or both are empty.Please write something to save.",
+                        icon = Icons.Filled.Info
+                    )
                 }
             }
+
         }
     }
 }
