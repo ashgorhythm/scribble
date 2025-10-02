@@ -1,11 +1,13 @@
 package com.ashgorhythm.scribble.screen
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
@@ -13,6 +15,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -37,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,6 +67,7 @@ fun NoteScreen(
     var description by remember { mutableStateOf("") }
     var existingNote by remember { mutableStateOf<Note?>(null) }
     val note = viewModel.note.collectAsState().value
+    val context = LocalContext.current
 
     val isNewNote = noteId == -1L
 
@@ -123,6 +128,19 @@ fun NoteScreen(
                            }
                         ) {
                             Icon(Icons.Default.Close,"Close")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            viewModel.deleteNote(existingNote!!)
+                            navController.popBackStack()
+                            Toast.makeText(context,"Note deleted successfully", Toast.LENGTH_SHORT).show()
+                        }) {
+                            Icon(Icons.Filled.Delete,"Delete")
+                        }
+                        Spacer(Modifier.padding(vertical = 5.dp))
+                        IconButton(onClick = {}) {
+                            Icon(Icons.Filled.)
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.secondary)
