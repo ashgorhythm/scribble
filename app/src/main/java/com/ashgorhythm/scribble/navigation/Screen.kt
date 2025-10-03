@@ -8,8 +8,5 @@ sealed class Screen(var route: String) {
             return "note_screen/${noteId}"
         }
     }
-
-
-
     object Splash : Screen("splash_screen")
 }

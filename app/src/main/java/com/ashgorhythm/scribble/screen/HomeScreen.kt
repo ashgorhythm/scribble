@@ -1,7 +1,7 @@
 package com.ashgorhythm.scribble.screen
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Row
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -21,13 +21,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,8 +37,6 @@ import com.ashgorhythm.scribble.viewmodel.NoteViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.Long
-import kotlin.Unit
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -50,7 +47,7 @@ fun HomeScreen(
     onNoteClick: (Long) -> Unit
 ){
     val notes by viewModel.notes.collectAsStateWithLifecycle()
-
+    val context = LocalContext.current
 
     Scaffold(
         modifier = Modifier
@@ -59,10 +56,15 @@ fun HomeScreen(
 
         topBar = {
             TopAppBar(
-                title = { Text("Scribble") },
+                title = { Text("Scribble", color = Color.Black) },
                 navigationIcon = {
-                    IconButton(onClick = {  }) {
-                        Icon(Icons.Default.Search,"Search")
+                    IconButton(onClick = {
+                        Toast.makeText(context, "This function will be added shortly.", Toast.LENGTH_SHORT).show()
+                    }) {
+                        Icon(
+                            Icons.Default.Search,
+                            "Search",
+                            tint = Color.Black)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.secondary)
@@ -114,7 +116,8 @@ fun NoteCard(
             text = note.title,
             maxLines = 2,
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(12.dp)
+            modifier = Modifier.padding(12.dp),
+            color = Color.Black
         )
         if (note.description.isNotBlank()){
             Text(
@@ -122,7 +125,8 @@ fun NoteCard(
                 maxLines = 4,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp).padding(top = 8.dp)
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp).padding(top = 8.dp),
+                color = Color.Black
             )
         }
 
@@ -132,7 +136,7 @@ fun NoteCard(
                 "Created ${formatDate(note.createdAt)}"
             },
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = Color.Black,
                 modifier = Modifier.padding(12.dp).padding(top = 4.dp)
             )
 

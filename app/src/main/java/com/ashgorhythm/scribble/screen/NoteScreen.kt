@@ -4,21 +4,15 @@ import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -26,13 +20,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -49,17 +39,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.ashgorhythm.scribble.R
 import com.ashgorhythm.scribble.data.Note
 import com.ashgorhythm.scribble.viewmodel.NoteViewModel
-import java.util.Date
 
 
 @SuppressLint("UnrememberedMutableState")
@@ -123,10 +111,10 @@ fun NoteScreen(
                     CenterAlignedTopAppBar(
                         title = {
                             if (existingNote != null){
-                                Text(existingNote!!.title)
+                                Text(existingNote!!.title, color = Color.Black)
                             }
                             else{
-                                Text("New Note")
+                                Text("New Note", color = Color.Black)
                             }
 
                         },
@@ -136,17 +124,21 @@ fun NoteScreen(
                                     navController.popBackStack()
                                 }
                             ) {
-                                Icon(Icons.Default.Close,"Close")
+                                Icon(Icons.Default.Close,"Close", tint = Color.Black)
                             }
                         },
                         actions = {
                             IconButton(onClick = {
-                                viewModel.deleteNote(existingNote!!)
-                                navController.popBackStack()
-                                Toast.makeText(context, "Note deleted successfully", Toast.LENGTH_SHORT)
-                                    .show()
+                                if (title.isBlank() && description.isBlank()){
+                                    openAlertDialog = true
+                                }
+                                else{
+                                    viewModel.deleteNote(existingNote!!)
+                                    navController.popBackStack()
+                                    Toast.makeText(context, "Note deleted successfully", Toast.LENGTH_SHORT).show()
+                                }
                             }) {
-                                Icon(Icons.Filled.Delete, "Delete")
+                                Icon(Icons.Filled.Delete, "Delete", tint = Color.Black)
                             }
                         },
 
@@ -166,9 +158,14 @@ fun NoteScreen(
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold
                         ),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
                         colors = TextFieldDefaults.colors(
                             unfocusedContainerColor = Color.Transparent,
-                            focusedContainerColor = Color.Transparent
+                            focusedContainerColor = Color.Transparent,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black
                         )
                     )
 
@@ -190,9 +187,14 @@ fun NoteScreen(
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         ),
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences
+                        ),
                         colors = TextFieldDefaults.colors(
                             unfocusedContainerColor = Color.Transparent,
-                            focusedContainerColor = Color.Transparent
+                            focusedContainerColor = Color.Transparent,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black
                         )
                     )
 
@@ -216,6 +218,13 @@ fun NoteScreen(
                         else{
                             viewModel.upsertNote(newNote)
                             navController.popBackStack()
+                            if (isNewNote){
+                                Toast.makeText(context, "Note saved successfully", Toast.LENGTH_SHORT).show()
+                            }
+                            else{
+                                Toast.makeText(context, "Note updated successfully", Toast.LENGTH_SHORT).show()
+                            }
+
                         }
 
                     },
@@ -224,15 +233,15 @@ fun NoteScreen(
                         .padding(bottom = 35.dp)
                         .padding(end = 16.dp),
                     containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.tertiary
+                    contentColor = Color.Black
                 ) {
-                    Icon(painter = painterResource(R.drawable.outlined_save), contentDescription = "Save")
+                    Icon(painter = painterResource(R.drawable.outlined_save), contentDescription = "Save", tint = Color.Black)
                 }
                 if (openAlertDialog) {
                     AlertNote(
                         onDismissRequest = { openAlertDialog = false },
                         dialogTitle = "Empty Note!",
-                        dialogText = "Title or Description or both are empty.Please write something to save.",
+                        dialogText = "Title or Description or both are empty.Please write something.Empty note can't be saved or deleted.",
                         icon = Icons.Filled.Info
                     )
                 }

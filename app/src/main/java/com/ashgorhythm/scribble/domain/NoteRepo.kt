@@ -1,10 +1,8 @@
 package com.ashgorhythm.scribble.domain
 
-import androidx.room.Query
 import com.ashgorhythm.scribble.data.Note
 import com.ashgorhythm.scribble.data.NoteDao
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 
 class NoteRepo(private val noteDao: NoteDao) {
 

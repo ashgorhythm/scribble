@@ -1,18 +1,14 @@
 package com.ashgorhythm.scribble.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.ashgorhythm.scribble.domain.MainApplication
-import com.ashgorhythm.scribble.domain.NoteRepo
 import com.ashgorhythm.scribble.screen.HomeScreen
 import com.ashgorhythm.scribble.screen.NoteScreen
 import com.ashgorhythm.scribble.viewmodel.NoteViewModel
-import com.ashgorhythm.scribble.viewmodel.NoteViewModelFactory
 
 @Composable
 fun ScribbleNavGraph(

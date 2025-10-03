@@ -19,10 +19,10 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -60,13 +60,13 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     //RoomDB
-    val roomVersion = "2.8.0"
+    val roomVersion = "2.8.1"
     implementation("androidx.room:room-runtime:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
     //kapt("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
     dependencies {
-        val nav_version = "2.9.4"
+        val nav_version = "2.9.5"
 
         implementation("androidx.navigation:navigation-compose:$nav_version")
     }

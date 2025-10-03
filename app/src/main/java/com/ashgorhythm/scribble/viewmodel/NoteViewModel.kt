@@ -2,7 +2,6 @@ package com.ashgorhythm.scribble.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.Query
 import com.ashgorhythm.scribble.data.Note
 import com.ashgorhythm.scribble.domain.NoteRepo
 import kotlinx.coroutines.flow.MutableStateFlow
