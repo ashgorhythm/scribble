@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
+import com.ashgorhythm.scribble.domain.Category
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -21,6 +22,10 @@ interface NoteDao {
     //search by id
     @Query("SELECT * FROM notes WHERE id = :id")
     fun getById(id: Long): Flow<Note?>
+
+    //category notes
+    @Query("SELECT * FROM NOTES WHERE category = :category ORDER BY updatedAt DESC")
+    fun getNotesByCategory(category: String): Flow<List<Note>>
     // Search notes by title or content
 //    @Query("SELECT * FROM notes WHERE title LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%' ORDER BY updatedAt DESC")
 //    fun searchNotes(query: String): Flow<List<Note>>

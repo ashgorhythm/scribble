@@ -3,9 +3,11 @@ package com.ashgorhythm.scribble.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ashgorhythm.scribble.data.Note
+import com.ashgorhythm.scribble.domain.Category
 import com.ashgorhythm.scribble.domain.NoteRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class NoteViewModel(
@@ -15,6 +17,16 @@ class NoteViewModel(
     val notes: StateFlow<List<Note>> = _notes
     private val _note = MutableStateFlow<Note?>(null)
     val note: StateFlow<Note?> = _note
+
+    private val _selectedCategory = MutableStateFlow<Category?>(null)
+    val selectedCategory = _selectedCategory.asStateFlow()
+
+    val filteredNotes: List<Note>
+        get() = if (_selectedCategory.value == null){
+            notes.value
+        } else{
+            notes.value.filter { it.category == _selectedCategory.value }
+        }
 
     init {
         loadNotes()
@@ -46,6 +58,9 @@ class NoteViewModel(
     }
     fun clearNote(){
         _note.value = null
+    }
+    fun setCategory(category: Category?){
+        _selectedCategory.value = category
     }
 //    fun searchNote(query: String){
 //        viewModelScope.launch {
