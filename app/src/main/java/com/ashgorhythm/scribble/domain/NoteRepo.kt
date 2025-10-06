@@ -19,8 +19,13 @@ class NoteRepo(private val noteDao: NoteDao) {
     fun getByID(id: Long): Flow<Note?> {
         return noteDao.getById(id)
     }
-    fun getNotesByCategory(category: String): Flow<List<Note>> {
-        return noteDao.getNotesByCategory(category)
+    fun getNotesByCategory(category: NoteCategory): Flow<List<Note>> {
+        return if (category is  NoteCategory.All){
+            getAllNote()
+        }
+        else {
+           noteDao.getNotesByCategory(category.name)
+        }
     }
 //    fun searchNote(query: String): Flow<List<Note>>{
 //        return noteDao.searchNotes(query)

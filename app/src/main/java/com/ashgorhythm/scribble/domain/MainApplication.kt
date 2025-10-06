@@ -6,15 +6,29 @@ import com.ashgorhythm.scribble.data.NoteDatabase
 
 class MainApplication: Application() {
     companion object{
-        lateinit var noteDatabase: NoteDatabase
+        @Volatile
+        private var INSTANCE: MainApplication? = null
+
+        fun getInstance(): MainApplication {
+            return INSTANCE ?: throw IllegalStateException("Application not initialized")
+        }
+    }
+    /**
+     * Database with migration support for category feature
+     */
+    val noteDatabase by lazy {
+        Room.databaseBuilder(
+            applicationContext,
+            NoteDatabase::class.java,
+            "Notes_DB"
+        )
+            .addMigrations(NoteDatabase.MIGRATION_1_2)
+            .fallbackToDestructiveMigration(false)
+            .build()
     }
 
     override fun onCreate() {
         super.onCreate()
-        noteDatabase = Room.databaseBuilder(
-            applicationContext,
-            NoteDatabase::class.java,
-            "Notes_DB"
-        ).build()
+        INSTANCE = this
     }
 }

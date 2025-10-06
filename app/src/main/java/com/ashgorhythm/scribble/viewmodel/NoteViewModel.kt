@@ -21,12 +21,7 @@ class NoteViewModel(
     private val _selectedCategory = MutableStateFlow<Category?>(null)
     val selectedCategory = _selectedCategory.asStateFlow()
 
-    val filteredNotes: List<Note>
-        get() = if (_selectedCategory.value == null){
-            notes.value
-        } else{
-            notes.value.filter { it.category == _selectedCategory.value }
-        }
+
 
     init {
         loadNotes()
@@ -59,9 +54,7 @@ class NoteViewModel(
     fun clearNote(){
         _note.value = null
     }
-    fun setCategory(category: Category?){
-        _selectedCategory.value = category
-    }
+
 //    fun searchNote(query: String){
 //        viewModelScope.launch {
 //            noteRepo.searchNote(query).collect {result ->

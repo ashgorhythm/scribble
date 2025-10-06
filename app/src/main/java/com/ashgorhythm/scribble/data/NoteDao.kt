@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
-import com.ashgorhythm.scribble.domain.Category
 import kotlinx.coroutines.flow.Flow
 
 @Dao
