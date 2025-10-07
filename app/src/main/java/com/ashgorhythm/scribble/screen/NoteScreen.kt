@@ -58,24 +58,24 @@ fun NoteScreen(
     viewModel: NoteViewModel,
     noteId: Long
 ){
+    val selectedCategory by viewModel.noteCategory.collectAsState()
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var existingNote by remember { mutableStateOf<Note?>(null) }
-    val note = viewModel.note.collectAsState().value
+    val note = viewModel.selectedNote.collectAsState().value
     val context = LocalContext.current
     var openAlertDialog by remember { mutableStateOf(false) }
     val isNewNote = noteId == -1L
 
     LaunchedEffect(noteId) {
-        if (!isNewNote){
-            viewModel.getById(noteId)
-        }
-        else{
-            viewModel.clearNote()
+        if (isNewNote){
+            viewModel.resetNote()
             existingNote = null
             title = ""
             description = ""
-
+        }
+        else{
+            viewModel.loadNoteById(noteId)
         }
 
 
@@ -129,7 +129,7 @@ fun NoteScreen(
                         },
                         actions = {
                             IconButton(onClick = {
-                                if (title.isBlank() && description.isBlank()){
+                                if (existingNote == null){
                                     openAlertDialog = true
                                 }
                                 else{
@@ -143,6 +143,25 @@ fun NoteScreen(
                         },
 
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.secondary)
+                    )
+                    Text(
+                        text = "Select Category",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                    CategorySelectionChipGroup(
+                        selectedCategory = selectedCategory,
+                        onCategorySelected = {category ->
+                            viewModel.selectNoteCategory(category)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                    Text(
+                        text = "Selected: ${selectedCategory.displayName}",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
                     TextField(
                         modifier = Modifier
@@ -210,7 +229,8 @@ fun NoteScreen(
                                 title = title,
                                 description = description,
                                 createdAt = System.currentTimeMillis(),
-                                updatedAt = System.currentTimeMillis()
+                                updatedAt = System.currentTimeMillis(),
+                                category = selectedCategory.name
                             )
                         if (title.isBlank() && description.isBlank()){
                             openAlertDialog = true

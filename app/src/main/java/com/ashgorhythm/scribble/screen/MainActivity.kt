@@ -20,8 +20,8 @@ import com.ashgorhythm.scribble.viewmodel.NoteViewModelFactory
 class MainActivity : ComponentActivity() {
     private val noteViewModel: NoteViewModel by viewModels {
         NoteViewModelFactory(
-            NoteRepo(MainApplication.noteDatabase.getNoteDao())
-        )
+            NoteRepo(MainApplication.getInstance().noteDatabase.getNoteDao()
+            ))
     }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
