@@ -2,6 +2,7 @@ package com.ashgorhythm.scribble.screen
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -88,6 +89,52 @@ fun NoteScreen(
         }
 
     }
+//    LaunchedEffect(title,description,selectedCategory) {
+//        if (title.isBlank() && description.isBlank()) return@LaunchedEffect
+//        kotlinx.coroutines.delay(2000)
+//        val newNote = existingNote?.copy(
+//            title = title,
+//            description = description,
+//            updatedAt = System.currentTimeMillis()
+//        )
+//            ?: Note(
+//                title = title,
+//                description = description,
+//                createdAt = System.currentTimeMillis(),
+//                updatedAt = System.currentTimeMillis(),
+//                category = selectedCategory.name
+//            )
+//        viewModel.upsertNote(newNote)
+//
+//
+//    }
+
+fun saveNoteAndNotify(): Boolean {
+        if (title.isBlank() && description.isBlank()) return false
+        val newNote = existingNote?.copy(
+            title = title,
+            description = description,
+            updatedAt = System.currentTimeMillis(),
+            category = selectedCategory.name
+        )
+            ?: Note(
+                title = title,
+                description = description,
+                createdAt = System.currentTimeMillis(),
+                updatedAt = System.currentTimeMillis(),
+                category = selectedCategory.name
+            )
+        viewModel.upsertNote(newNote)
+    val message = if (isNewNote) "Note saved successfully" else "Note updated successfully"
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    return true
+}
+    BackHandler {
+        if (title.isNotBlank() || description.isNotBlank()) {
+            saveNoteAndNotify()
+        }
+        navController.popBackStack()
+    }
 
 
 
@@ -121,6 +168,7 @@ fun NoteScreen(
                         navigationIcon = {
                             IconButton(
                                 onClick = {
+                                    saveNoteAndNotify()
                                     navController.popBackStack()
                                 }
                             ) {
@@ -129,13 +177,17 @@ fun NoteScreen(
                         },
                         actions = {
                             IconButton(onClick = {
-                                if (existingNote == null){
+                                if (existingNote==null){
                                     openAlertDialog = true
                                 }
-                                else{
+                                else {
                                     viewModel.deleteNote(existingNote!!)
                                     navController.popBackStack()
-                                    Toast.makeText(context, "Note deleted successfully", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Note deleted successfully",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }) {
                                 Icon(Icons.Filled.Delete, "Delete", tint = Color.Black)
@@ -204,7 +256,7 @@ fun NoteScreen(
                             fontWeight = FontWeight.Bold)},
                         textStyle = TextStyle(
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Normal
                         ),
                         keyboardOptions = KeyboardOptions(
                             capitalization = KeyboardCapitalization.Sentences
@@ -218,50 +270,11 @@ fun NoteScreen(
                     )
 
                 }
-                FloatingActionButton(
-                    onClick = {
-                        val newNote = existingNote?.copy(
-                            title = title,
-                            description = description,
-                            updatedAt = System.currentTimeMillis()
-                        )
-                            ?: Note(
-                                title = title,
-                                description = description,
-                                createdAt = System.currentTimeMillis(),
-                                updatedAt = System.currentTimeMillis(),
-                                category = selectedCategory.name
-                            )
-                        if (title.isBlank() && description.isBlank()){
-                            openAlertDialog = true
-                        }
-                        else{
-                            viewModel.upsertNote(newNote)
-                            navController.popBackStack()
-                            if (isNewNote){
-                                Toast.makeText(context, "Note saved successfully", Toast.LENGTH_SHORT).show()
-                            }
-                            else{
-                                Toast.makeText(context, "Note updated successfully", Toast.LENGTH_SHORT).show()
-                            }
-
-                        }
-
-                    },
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = 35.dp)
-                        .padding(end = 16.dp),
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = Color.Black
-                ) {
-                    Icon(painter = painterResource(R.drawable.outlined_save), contentDescription = "Save", tint = Color.Black)
-                }
                 if (openAlertDialog) {
                     AlertNote(
                         onDismissRequest = { openAlertDialog = false },
                         dialogTitle = "Empty Note!",
-                        dialogText = "Title or Description or both are empty.Please write something.Empty note can't be saved or deleted.",
+                        dialogText = "Title or Description or both are empty.Please write something.",
                         icon = Icons.Filled.Info
                     )
                 }

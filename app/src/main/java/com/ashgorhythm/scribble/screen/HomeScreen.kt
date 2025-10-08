@@ -92,7 +92,10 @@ fun HomeScreen(
             }
         }
     ) {paddingValues ->
-        Column() {
+        Column(
+            modifier = Modifier.fillMaxSize()
+                .padding(paddingValues)
+        ) {
             CategoryFilterChipGroup(
                 selectedCategory = selectedCategory,
                 onCategorySelected = { category ->
@@ -118,7 +121,6 @@ fun HomeScreen(
             } else {
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(150.dp),
-                    contentPadding = paddingValues,
                     horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
                         8.dp
                     ),
@@ -132,6 +134,7 @@ fun HomeScreen(
                         )
                     }
                 }
+
 
             }
         }

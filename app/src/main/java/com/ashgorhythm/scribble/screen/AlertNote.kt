@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 
 @Composable
@@ -17,7 +18,7 @@ fun AlertNote(
 ){
     AlertDialog(
         icon = {
-            Icon(icon, contentDescription = "Info")
+            Icon(icon, contentDescription = "Info", tint = Color.Red)
         },
         title = {
             Text(text = dialogTitle)
@@ -33,6 +34,8 @@ fun AlertNote(
                 Text("Close", color = MaterialTheme.colorScheme.tertiary)
             }
         },
-        containerColor = MaterialTheme.colorScheme.primary
+        containerColor = MaterialTheme.colorScheme.primary,
+        titleContentColor = Color.Red,
+        textContentColor = Color.Black
     )
 }
