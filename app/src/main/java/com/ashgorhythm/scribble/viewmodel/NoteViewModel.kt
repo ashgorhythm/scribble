@@ -57,6 +57,7 @@ class NoteViewModel(
     val note: StateFlow<Note?> = _note
 
 
+
     /**
      * Update the category for current note being edited
      */
@@ -117,13 +118,13 @@ class NoteViewModel(
     }
 
 
-//    fun searchNote(query: String){
-//        viewModelScope.launch {
-//            noteRepo.searchNote(query).collect {result ->
-//                _notes.value =  result
-//            }
-//        }
-//    }
+    fun searchNote(query: String){
+        viewModelScope.launch {
+            noteRepo.searchNote(query).collect {result ->
+
+            }
+        }
+    }
 
 
 }

@@ -3,34 +3,27 @@ package com.ashgorhythm.scribble.screen
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,21 +41,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.ashgorhythm.scribble.R
 import com.ashgorhythm.scribble.data.Note
 import com.ashgorhythm.scribble.navigation.Screen
 import com.ashgorhythm.scribble.viewmodel.NoteViewModel
+import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.math.E
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -74,7 +70,7 @@ fun HomeScreen(
     val selectedCategory by viewModel.selectedCategory.collectAsState()
     val notes by viewModel.notes.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    var expanded by remember { mutableStateOf(false) }
+
 
 
     Scaffold(
@@ -99,84 +95,22 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            Box{
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalAlignment = Alignment.End,
-                    //modifier = Modifier.padding(bottom = 72.dp)
-                ){
-                    AnimatedVisibility(
-                        visible = expanded,
-                        enter = fadeIn() + expandVertically(expandFrom = Alignment.Bottom),
-                        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Bottom)
-                    ) {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
-                            horizontalAlignment = Alignment.End,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        ) {
-
-                            SmallFloatingActionButton(
-                                onClick = {
-                                    Toast.makeText(context, "Image note coming soon", Toast.LENGTH_SHORT).show()
-                                    expanded = false
-                                },
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.tertiary
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.add_photo),
-                                    contentDescription = "Image Note"
-                                )
-                            }
-                            SmallFloatingActionButton(
-                                onClick = {
-                                    Toast.makeText(context, "Todo note coming soon", Toast.LENGTH_SHORT).show()
-                                    expanded = false
-                                },
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.tertiary
-                            ) {
-                                Icon(Icons.Default.CheckCircle, contentDescription = "Todo Note")
-                            }
-                            SmallFloatingActionButton(
-                                onClick = {
-                                    Toast.makeText(context, "Audio note coming soon", Toast.LENGTH_SHORT).show()
-                                    expanded = false
-                                },
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.tertiary
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.outlined_mic),
-                                    contentDescription = "Audio Note"
-                                )
-                            }
-                            SmallFloatingActionButton(
-                                onClick = {
-                                    viewModel.clearNote()
-                                    navController.navigate(Screen.Note.createRoute(-1L))
-                                    expanded = false
-                                },
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.tertiary
-                            ) {
-                                Icon(Icons.Default.Edit, contentDescription = "Text Note")
-                            }
-                        }
-                    }
-                }
-            }
-            FloatingActionButton(
-                onClick = {
-                    expanded = !expanded
+            ExpandableFab(
+                onAddTextNote = {
+                    viewModel.clearNote()
+                    navController.navigate(Screen.Note.createRoute(-1L))
                 },
-                containerColor = MaterialTheme.colorScheme.primary,
-                elevation = FloatingActionButtonDefaults.elevation(2.dp),
-                contentColor = MaterialTheme.colorScheme.tertiary
-            ) {
-                Icon(imageVector = if (expanded) Icons.Default.Close else Icons.Default.Add,"Add")
-            }
+                onAddImageNote = {
+                    Toast.makeText(context, "Image note coming soon", Toast.LENGTH_SHORT).show()
+                },
+                onAddTodo = {
+                    Toast.makeText(context, "Todo note coming soon", Toast.LENGTH_SHORT).show()
+                },
+                onAddAudio = {
+                    Toast.makeText(context, "Audio note coming soon", Toast.LENGTH_SHORT).show()
+                }
+            )
+
         }
     ) {paddingValues ->
         Column(
@@ -208,10 +142,10 @@ fun HomeScreen(
             } else {
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(150.dp),
-                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
+                    horizontalArrangement = Arrangement.spacedBy(
                         8.dp
                     ),
-                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.padding(horizontal = 8.dp)
                 ) {
                     items(notes) { note ->
@@ -273,7 +207,109 @@ fun NoteCard(
 
     }
 }
+@Composable
+fun ExpandableFab(
+    onAddTextNote: () -> Unit,
+    onAddImageNote: () -> Unit,
+    onAddTodo: () -> Unit,
+    onAddAudio: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
 
+    // Rotation animation for main FAB (+ → ×)
+    val rotation by animateFloatAsState(
+        targetValue = if (expanded) 45f else 0f,
+        label = "fab_rotation"
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        // All small FABs
+        AnimatedVisibility(
+            visible = expanded,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalAlignment = Alignment.End
+            ) {
+                // You can control order here: top-most is shown first
+                AnimatedFab(icon = R.drawable.add_photo, text = "Image", delay = 0) {
+                    onAddImageNote()
+                }
+                AnimatedFab(icon = null, text = "Text", delay = 100) {
+                    onAddTextNote()
+                }
+                AnimatedFab(icon = null, text = "Todo", delay = 300) {
+                    onAddTodo()
+                }
+                AnimatedFab(icon = R.drawable.outlined_mic, text = "Audio", delay =500 ) {
+                    onAddAudio
+                }
+
+            }
+        }
+
+        // Main FAB (+)
+        FloatingActionButton(
+            onClick = { expanded = !expanded },
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.tertiary
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add",
+                modifier = Modifier.rotate(rotation)
+            )
+        }
+    }
+}
+
+@Composable
+private fun AnimatedFab(
+    icon: Int?,
+    text: String,
+    delay: Int,
+    onClick: () -> Unit
+) {
+    val visible = remember { mutableStateOf(false) }
+
+    // Appear staggered
+    LaunchedEffect(Unit) {
+        delay(delay.toLong())
+        visible.value = true
+    }
+
+    AnimatedVisibility(
+        visible = visible.value,
+        modifier = Modifier.zIndex(1f),
+        enter = fadeIn() + expandVertically(),
+        exit = fadeOut() + shrinkVertically(),
+    ) {
+        SmallFloatingActionButton(
+            onClick = {
+                visible.value = false
+                onClick()
+            },
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.tertiary
+        ) {
+            if (icon != null) {
+                Icon(
+                    painter = painterResource(id = icon),
+                    contentDescription = text
+                )
+            } else {
+                Text(text)
+            }
+        }
+    }
+}
 
 fun formatDate(timestamp: Long): String {
     val sdf = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
