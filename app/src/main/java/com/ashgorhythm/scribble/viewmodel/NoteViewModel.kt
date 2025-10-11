@@ -118,13 +118,13 @@ class NoteViewModel(
     }
 
 
-    fun searchNote(query: String){
-        viewModelScope.launch {
-            noteRepo.searchNote(query).collect {result ->
-
-            }
-        }
-    }
+//    fun searchNote(query: String){
+//        viewModelScope.launch {
+//            noteRepo.searchNote(query).collect {result ->
+//
+//            }
+//        }
+//    }
 
 
 }

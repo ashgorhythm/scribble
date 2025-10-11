@@ -68,6 +68,7 @@ fun NoteScreen(
     var openAlertDialog by remember { mutableStateOf(false) }
     val isNewNote = noteId == -1L
     val lifecycleOwner = LocalLifecycleOwner.current
+    val hasSaved = remember { mutableStateOf(false) }
 
     LaunchedEffect(noteId) {
         if (isNewNote){
@@ -115,9 +116,10 @@ fun saveNoteAndNotify(): Boolean {
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver {_,event ->
             when(event){
-                Lifecycle.Event.ON_STOP,
-                Lifecycle.Event.ON_DESTROY -> {
-                    saveNoteAndNotify()
+                Lifecycle.Event.ON_STOP -> {
+                    if (!hasSaved.value){
+                        hasSaved.value = saveNoteAndNotify()
+                    }
                 }
                 else -> {}
             }
@@ -127,9 +129,12 @@ fun saveNoteAndNotify(): Boolean {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
-
-
-
+    BackHandler {
+        if (!hasSaved.value && (title.isNotBlank() || description.isNotBlank())) {
+            hasSaved.value = saveNoteAndNotify()
+        }
+        navController.popBackStack()
+    }
 
     Dialog(
         onDismissRequest = {navController.popBackStack()},
@@ -143,12 +148,7 @@ fun saveNoteAndNotify(): Boolean {
                 .fillMaxSize(),
             shadowElevation = 2.dp
         ) {
-            BackHandler {
-            if (title.isNotBlank() || description.isNotBlank()) {
-                saveNoteAndNotify()
-            }
-            navController.popBackStack()
-        }
+
             Box(modifier = Modifier.fillMaxSize())
             {
                 Column(

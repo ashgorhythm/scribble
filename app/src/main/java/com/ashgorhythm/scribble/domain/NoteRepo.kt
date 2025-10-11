@@ -27,7 +27,7 @@ class NoteRepo(private val noteDao: NoteDao) {
            noteDao.getNotesByCategory(category.name)
         }
     }
-    fun searchNote(query: String): Flow<List<Note>>{
-        return noteDao.searchNotes(query)
-    }
+//    fun searchNote(query: String): Flow<List<Note>>{
+//        return noteDao.searchNotes(query)
+//    }
 }
