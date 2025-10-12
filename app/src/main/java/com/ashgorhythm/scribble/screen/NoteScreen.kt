@@ -69,6 +69,7 @@ fun NoteScreen(
     val isNewNote = noteId == -1L
     val lifecycleOwner = LocalLifecycleOwner.current
     val hasSaved = remember { mutableStateOf(false) }
+    var shouldSkipSave by remember { mutableStateOf(false) }
 
     LaunchedEffect(noteId) {
         if (isNewNote){
@@ -117,7 +118,7 @@ fun saveNoteAndNotify(): Boolean {
         val observer = LifecycleEventObserver {_,event ->
             when(event){
                 Lifecycle.Event.ON_STOP -> {
-                    if (!hasSaved.value){
+                    if (!hasSaved.value && !shouldSkipSave){
                         hasSaved.value = saveNoteAndNotify()
                     }
                 }
@@ -130,7 +131,7 @@ fun saveNoteAndNotify(): Boolean {
         }
     }
     BackHandler {
-        if (!hasSaved.value && (title.isNotBlank() || description.isNotBlank())) {
+        if (!hasSaved.value && !shouldSkipSave && (title.isNotBlank() || description.isNotBlank())) {
             hasSaved.value = saveNoteAndNotify()
         }
         navController.popBackStack()
@@ -167,7 +168,10 @@ fun saveNoteAndNotify(): Boolean {
                         navigationIcon = {
                             IconButton(
                                 onClick = {
-                                    saveNoteAndNotify()
+//                                    if (!hasSaved.value && !shouldSkipSave && (title.isNotBlank() || description.isNotBlank())) {
+//                                        hasSaved.value = saveNoteAndNotify()
+//                                    }
+                                    shouldSkipSave = true
                                     navController.popBackStack()
                                 }
                             ) {
@@ -176,6 +180,7 @@ fun saveNoteAndNotify(): Boolean {
                         },
                         actions = {
                             IconButton(onClick = {
+                                shouldSkipSave = true
                                 if (existingNote==null){
                                     openAlertDialog = true
                                 }
