@@ -17,6 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
@@ -30,6 +33,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -45,6 +50,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -70,6 +76,10 @@ fun HomeScreen(
     val selectedCategory by viewModel.selectedCategory.collectAsState()
     val notes by viewModel.notes.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    var isSearching by remember { mutableStateOf(false) }
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val searchResult by viewModel.searchResults.collectAsStateWithLifecycle()
+    val displayNotes = if (searchQuery.isNotBlank()) searchResult else notes
 
 
 
@@ -80,10 +90,34 @@ fun HomeScreen(
 
         topBar = {
             TopAppBar(
-                title = { Text("Scribble", color = Color.Black) },
+                title = {
+                    if (isSearching) {
+                        TextField(
+                            value = searchQuery,
+                            onValueChange = { viewModel.onSearchQueryChange(it) },
+                            placeholder = { Text("Search Notes") },
+                            singleLine = true,
+                            shape = CircleShape,
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent
+                            ),
+                            keyboardOptions = KeyboardOptions.Default.copy(
+                                imeAction = ImeAction.Search
+                            ),
+                            keyboardActions = KeyboardActions(
+                                onSearch = {
+                                    viewModel.onSearchQueryChange(searchQuery)
+                                }
+                            )
+                        )
+                    } else {
+                        Text("Scribble", color = Color.Black)
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = {
-                        Toast.makeText(context, "This function will be added shortly.", Toast.LENGTH_SHORT).show()
+                        isSearching = !isSearching
                     }) {
                         Icon(
                             Icons.Default.Search,
@@ -126,7 +160,7 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             )
-            if (notes.isEmpty()) {
+            if (displayNotes.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -134,7 +168,7 @@ fun HomeScreen(
                     contentAlignment = Alignment.TopCenter
                 ) {
                     Text(
-                        "No notes found",
+                        text = if (searchQuery.isNotBlank()) "No matching notes found" else "No notes yet",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray
                     )
@@ -148,7 +182,7 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.padding(horizontal = 8.dp)
                 ) {
-                    items(notes) { note ->
+                    items(displayNotes) { note ->
                         NoteCard(
                             note = note,
                             onNoteClick = onNoteClick

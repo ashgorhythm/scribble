@@ -9,6 +9,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -56,7 +57,11 @@ class NoteViewModel(
     private val _note = MutableStateFlow<Note?>(null)
     val note: StateFlow<Note?> = _note
 
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
 
+    private val _searchResults = MutableStateFlow<List<Note>>(emptyList())
+    val searchResults = _searchResults.asStateFlow()
 
     /**
      * Update the category for current note being edited
@@ -118,13 +123,15 @@ class NoteViewModel(
     }
 
 
-//    fun searchNote(query: String){
-//        viewModelScope.launch {
-//            noteRepo.searchNote(query).collect {result ->
-//
-//            }
-//        }
-//    }
+    fun onSearchQueryChange(newQuery: String) {
+    _searchQuery.value = newQuery
+    viewModelScope.launch {
+        noteRepo.searchNote(newQuery)
+            .collect { results ->
+                _searchResults.value = results
+            }
+    }
+}
 
 
 }
