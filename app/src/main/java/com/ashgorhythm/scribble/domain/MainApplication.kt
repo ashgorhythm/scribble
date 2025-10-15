@@ -22,7 +22,7 @@ class MainApplication: Application() {
             NoteDatabase::class.java,
             "Notes_DB"
         )
-            .addMigrations(NoteDatabase.MIGRATION_1_2)
+            .addMigrations(NoteDatabase.MIGRATION_1_2, NoteDatabase.MIGRATION_2_3)
             .fallbackToDestructiveMigration(false)
             .build()
     }

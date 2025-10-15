@@ -12,7 +12,7 @@ import com.ashgorhythm.scribble.domain.NoteCategory
  * - Updated version to 2 to include category field
  * - Migration adds category column with default OTHER value
  */
-@Database(entities = [Note::class], version = 2, exportSchema = true)
+@Database(entities = [Note::class], version = 3, exportSchema = true)
 @TypeConverters(Converters::class)
 abstract class NoteDatabase: RoomDatabase(){
     abstract fun getNoteDao(): NoteDao
@@ -21,6 +21,12 @@ abstract class NoteDatabase: RoomDatabase(){
         val MIGRATION_1_2 = object : Migration(1,2){
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE notes ADD COLUMN category TEXT NOT NULL DEFAULT '${NoteCategory.Other.name}'")
+            }
+        }
+        // adding image uri
+        val MIGRATION_2_3 = object : Migration(2,3){
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE notes ADD COLUMN imageUri TEXT")
             }
         }
     }

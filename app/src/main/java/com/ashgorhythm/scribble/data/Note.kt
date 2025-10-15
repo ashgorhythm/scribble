@@ -12,8 +12,8 @@ data class Note(
     @ColumnInfo val description: String,
     @ColumnInfo val createdAt: Long,
     @ColumnInfo val updatedAt: Long,
-    @ColumnInfo val category: String = NoteCategory.Other.name
-
+    @ColumnInfo val category: String = NoteCategory.Other.name,
+    @ColumnInfo val imageUri: String? = null
 ){
     fun getCategoryObject(): NoteCategory{
         return NoteCategory.fromName(category)
