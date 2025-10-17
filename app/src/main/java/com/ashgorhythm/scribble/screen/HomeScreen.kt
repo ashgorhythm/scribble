@@ -8,11 +8,13 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -48,14 +50,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
 import com.ashgorhythm.scribble.R
 import com.ashgorhythm.scribble.data.Note
 import com.ashgorhythm.scribble.navigation.Screen
@@ -71,7 +76,7 @@ import java.util.Locale
 fun HomeScreen(
     viewModel: NoteViewModel,
     navController: NavHostController,
-    onNoteClick: (Long) -> Unit
+    onNoteClick: (Long) -> Unit,
 ){
     val selectedCategory by viewModel.selectedCategory.collectAsState()
     val notes by viewModel.notes.collectAsStateWithLifecycle()
@@ -135,7 +140,8 @@ fun HomeScreen(
                     navController.navigate(Screen.Note.createRoute(-1L))
                 },
                 onAddImageNote = {
-                    Toast.makeText(context, "Image note coming soon", Toast.LENGTH_SHORT).show()
+                    viewModel.clearNote()
+                    navController.navigate(Screen.Note.createRoute(-2L))
                 },
                 onAddTodo = {
                     Toast.makeText(context, "Todo note coming soon", Toast.LENGTH_SHORT).show()
@@ -201,7 +207,7 @@ fun HomeScreen(
 @Composable
 fun NoteCard(
     note: Note,
-    onNoteClick: (Long) -> Unit
+    onNoteClick: (Long) -> Unit,
 ){
     Card(
         onClick = {onNoteClick(note.id)},
@@ -210,35 +216,48 @@ fun NoteCard(
             containerColor = MaterialTheme.colorScheme.background
         )
     ) {
-        Text(
-            text = note.title,
-            maxLines = 2,
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(12.dp),
-            color = Color.Black
-        )
-        if (note.description.isNotBlank()){
+        if (!note.imageUri.isNullOrBlank()) {
+            Image(
+                painter = rememberAsyncImagePainter(note.imageUri.toUri()),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
+            )
+        } else {
             Text(
-                text = note.description,
-                maxLines = 4,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp).padding(top = 8.dp),
+                text = note.title,
+                maxLines = 2,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(12.dp),
                 color = Color.Black
             )
-        }
+            if (note.description.isNotBlank()) {
+                Text(
+                    text = note.description,
+                    maxLines = 4,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                        .padding(top = 8.dp),
+                    color = Color.Black
+                )
+            }
 
-        Text(text = if (note.updatedAt != note.createdAt) {
-                "Updated ${formatDate(note.updatedAt)}"
-            } else {
-                "Created ${formatDate(note.createdAt)}"
-            },
+            Text(
+                text = if (note.updatedAt != note.createdAt) {
+                    "Updated ${formatDate(note.updatedAt)}"
+                } else {
+                    "Created ${formatDate(note.createdAt)}"
+                },
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Black,
                 modifier = Modifier.padding(12.dp).padding(top = 4.dp)
             )
 
 
+        }
     }
 }
 @Composable
@@ -246,7 +265,7 @@ fun ExpandableFab(
     onAddTextNote: () -> Unit,
     onAddImageNote: () -> Unit,
     onAddTodo: () -> Unit,
-    onAddAudio: () -> Unit
+    onAddAudio: () -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -309,7 +328,7 @@ private fun AnimatedFab(
     icon: Int?,
     text: String,
     delay: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val visible = remember { mutableStateOf(false) }
 

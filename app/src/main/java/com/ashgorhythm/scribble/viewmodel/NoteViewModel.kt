@@ -89,13 +89,7 @@ class NoteViewModel(
             noteRepo.upsertNote(noteWithCategory)
         }
     }
-//    fun getById(id: Long) {
-//        viewModelScope.launch {
-//           noteRepo.getByID(id).collect { note ->
-//               _note.value = note
-//           }
-//        }
-//    }
+
     fun clearNote(){
         _note.value = null
     }

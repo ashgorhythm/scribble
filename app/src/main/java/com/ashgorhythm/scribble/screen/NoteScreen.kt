@@ -3,6 +3,9 @@ package com.ashgorhythm.scribble.screen
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContract
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
@@ -22,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
@@ -47,6 +52,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import com.ashgorhythm.scribble.R
 import com.ashgorhythm.scribble.data.Note
 import com.ashgorhythm.scribble.viewmodel.NoteViewModel
 
@@ -63,6 +70,7 @@ fun NoteScreen(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var existingNote by remember { mutableStateOf<Note?>(null) }
+    val isImageNote = existingNote?.imageUri != null || existingNote?.id == -2L
     val note = viewModel.selectedNote.collectAsState().value
     val context = LocalContext.current
     var openAlertDialog by remember { mutableStateOf(false) }
@@ -70,6 +78,21 @@ fun NoteScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val hasSaved = remember { mutableStateOf(false) }
     var shouldSkipSave by remember { mutableStateOf(false) }
+    var imageUri by remember { mutableStateOf(existingNote?.imageUri) }
+
+
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+           imageUri = uri?.toString()
+        }
+    )
+//    if (isImageNote && imageUri == null){
+//        LaunchedEffect(Unit) {
+//            imagePicker.launch("image/*")
+//        }
+//    }
+
 
     LaunchedEffect(noteId) {
         if (isNewNote){
@@ -89,6 +112,11 @@ fun NoteScreen(
             existingNote = it
             title = it.title
             description = it.description
+            imageUri = it.imageUri
+
+            if (it.id == -2L && it.imageUri.isNullOrBlank()) {
+                imagePicker.launch("image/*")
+            }
         }
 
     }
@@ -100,14 +128,16 @@ fun saveNoteAndNotify(): Boolean {
             title = title,
             description = description,
             updatedAt = System.currentTimeMillis(),
-            category = selectedCategory.name
+            category = selectedCategory.name,
+            imageUri = imageUri
         )
             ?: Note(
                 title = title,
                 description = description,
                 createdAt = System.currentTimeMillis(),
                 updatedAt = System.currentTimeMillis(),
-                category = selectedCategory.name
+                category = selectedCategory.name,
+                imageUri = imageUri
             )
         viewModel.upsertNote(newNote)
     val message = if (isNewNote) "Note saved successfully" else "Note updated successfully"
@@ -168,9 +198,6 @@ fun saveNoteAndNotify(): Boolean {
                         navigationIcon = {
                             IconButton(
                                 onClick = {
-//                                    if (!hasSaved.value && !shouldSkipSave && (title.isNotBlank() || description.isNotBlank())) {
-//                                        hasSaved.value = saveNoteAndNotify()
-//                                    }
                                     shouldSkipSave = true
                                     navController.popBackStack()
                                 }
@@ -219,6 +246,26 @@ fun saveNoteAndNotify(): Boolean {
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
+                    if (imageUri != null){
+                        AsyncImage(
+                            model = imageUri ?: R.drawable.add_photo,
+                            contentDescription = "Selected Image",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp)
+                                .padding(8.dp)
+                        )
+                    } else {
+                        TextButton(
+                            onClick = { imagePicker.launch("image/*") },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = "Pick Image")
+                            Text("Add Image", modifier = Modifier.padding(start = 8.dp))
+                        }
+                    }
                     TextField(
                         modifier = Modifier
                             .fillMaxWidth()

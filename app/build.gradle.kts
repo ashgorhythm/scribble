@@ -62,7 +62,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     //RoomDB
-    val roomVersion = "2.8.1"
+    val roomVersion = "2.8.2"
     implementation("androidx.room:room-runtime:$roomVersion")
     ksp("androidx.room:room-compiler:$roomVersion")
     //kapt("androidx.room:room-compiler:$roomVersion")
@@ -72,4 +72,6 @@ dependencies {
 
         implementation("androidx.navigation:navigation-compose:$nav_version")
     }
+    implementation("io.coil-kt:coil-compose:2.7.0")
+
 }

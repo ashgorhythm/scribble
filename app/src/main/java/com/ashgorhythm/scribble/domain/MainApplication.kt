@@ -13,9 +13,7 @@ class MainApplication: Application() {
             return INSTANCE ?: throw IllegalStateException("Application not initialized")
         }
     }
-    /**
-     * Database with migration support for category feature
-     */
+
     val noteDatabase by lazy {
         Room.databaseBuilder(
             applicationContext,
