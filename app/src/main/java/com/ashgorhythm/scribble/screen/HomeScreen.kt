@@ -100,7 +100,9 @@ fun HomeScreen(
                         TextField(
                             value = searchQuery,
                             onValueChange = { viewModel.onSearchQueryChange(it) },
-                            placeholder = { Text("Search Notes") },
+                            placeholder = { Text(
+                                text = "Search Notes",
+                                color = Color.Black) },
                             singleLine = true,
                             shape = CircleShape,
                             colors = TextFieldDefaults.colors(

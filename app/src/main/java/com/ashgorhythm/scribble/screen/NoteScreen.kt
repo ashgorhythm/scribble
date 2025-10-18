@@ -1,10 +1,10 @@
 package com.ashgorhythm.scribble.screen
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +40,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -55,7 +56,10 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.ashgorhythm.scribble.R
 import com.ashgorhythm.scribble.data.Note
+import com.ashgorhythm.scribble.utils.deleteImage
+import com.ashgorhythm.scribble.utils.saveImage
 import com.ashgorhythm.scribble.viewmodel.NoteViewModel
+import java.io.File
 
 
 @SuppressLint("UnrememberedMutableState")
@@ -70,7 +74,7 @@ fun NoteScreen(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var existingNote by remember { mutableStateOf<Note?>(null) }
-    val isImageNote = existingNote?.imageUri != null || existingNote?.id == -2L
+    val isImageNote = existingNote?.imageUri != null || noteId == -2L
     val note = viewModel.selectedNote.collectAsState().value
     val context = LocalContext.current
     var openAlertDialog by remember { mutableStateOf(false) }
@@ -84,7 +88,10 @@ fun NoteScreen(
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
-           imageUri = uri?.toString()
+           uri?.let {
+               val savedPath = saveImage(context,it)
+               imageUri = savedPath
+           }
         }
     )
 //    if (isImageNote && imageUri == null){
@@ -123,7 +130,7 @@ fun NoteScreen(
 
 
 fun saveNoteAndNotify(): Boolean {
-        if (title.isBlank() && description.isBlank()) return false
+        if ((title.isBlank() && description.isBlank()) && imageUri.isNullOrBlank()) return false
         val newNote = existingNote?.copy(
             title = title,
             description = description,
@@ -212,6 +219,7 @@ fun saveNoteAndNotify(): Boolean {
                                     openAlertDialog = true
                                 }
                                 else {
+                                    deleteImage(existingNote!!.imageUri)
                                     viewModel.deleteNote(existingNote!!)
                                     navController.popBackStack()
                                     Toast.makeText(
@@ -246,24 +254,26 @@ fun saveNoteAndNotify(): Boolean {
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
-                    if (imageUri != null){
-                        AsyncImage(
-                            model = imageUri ?: R.drawable.add_photo,
-                            contentDescription = "Selected Image",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                                .padding(8.dp)
-                        )
-                    } else {
-                        TextButton(
-                            onClick = { imagePicker.launch("image/*") },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                        ) {
-                            Icon(Icons.Default.Add, contentDescription = "Pick Image")
-                            Text("Add Image", modifier = Modifier.padding(start = 8.dp))
+                    if (isImageNote){
+                        if (imageUri != null){
+                            AsyncImage(
+                                model = imageUri?.let { Uri.fromFile(File(it)) } ?: R.drawable.add_photo,
+                                contentDescription = "Selected Image",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        } else {
+                            TextButton(
+                                onClick = { imagePicker.launch("image/*") },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = "Pick Image")
+                                Text("Add Image", modifier = Modifier.padding(start = 8.dp))
+                            }
                         }
                     }
                     TextField(
